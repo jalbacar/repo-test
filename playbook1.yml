@@ -1,0 +1,106 @@
+---
+- name: Configuración de Servidor Web
+  hosts: all
+  become: true
+  
+  vars:
+    apache_port: 80
+    website_name: "Mi Sitio Web de Prueba"
+    
+  tasks:
+    - name: Actualizar caché de paquetes (Debian/Ubuntu)
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+      
+    - name: Actualizar caché de paquetes (RedHat/CentOS)
+      yum:
+        update_cache: yes
+      when: ansible_os_family == "RedHat"
+      
+    - name: Instalar Apache (Debian/Ubuntu)
+      apt:
+        name: apache2
+        state: present
+      when: ansible_os_family == "Debian"
+      notify: Restart Apache Debian
+      
+    - name: Instalar Apache (RedHat/CentOS)
+      yum:
+        name: httpd
+        state: present
+      when: ansible_os_family == "RedHat"
+      notify: Restart Apache RedHat
+      
+    - name: Crear configuración personalizada de Apache (Debian/Ubuntu)
+      template:
+        src: apache2.conf.j2
+        dest: /etc/apache2/apache2.conf
+        owner: root
+        group: root
+        mode: '0644'
+      when: ansible_os_family == "Debian"
+      notify: Restart Apache Debian
+      
+    - name: Crear configuración personalizada de Apache (RedHat/CentOS)
+      template:
+        src: httpd.conf.j2
+        dest: /etc/httpd/conf/httpd.conf
+        owner: root
+        group: root
+        mode: '0644'
+      when: ansible_os_family == "RedHat"
+      notify: Restart Apache RedHat
+      
+    - name: Asegurar que Apache esté habilitado y en ejecución (Debian/Ubuntu)
+      service:
+        name: apache2
+        state: started
+        enabled: yes
+      when: ansible_os_family == "Debian"
+      
+    - name: Asegurar que Apache esté habilitado y en ejecución (RedHat/CentOS)
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+      when: ansible_os_family == "RedHat"
+      
+    - name: Configurar firewall UFW (Debian/Ubuntu)
+      ufw:
+        rule: allow
+        port: "{{ apache_port }}"
+        proto: tcp
+      when: ansible_os_family == "Debian"
+      
+    - name: Configurar firewall firewalld (RedHat/CentOS)
+      firewalld:
+        port: "{{ apache_port }}/tcp"
+        permanent: yes
+        state: enabled
+        immediate: yes
+      when: ansible_os_family == "RedHat"
+      
+    - name: Crear página HTML de prueba
+      template:
+        src: index.html.j2
+        dest: "{{ ansible_os_family == 'Debian' | ternary('/var/www/html/index.html', '/var/www/html/index.html') }}"
+        owner: "{{ ansible_os_family == 'Debian' | ternary('www-data', 'apache') }}"
+        group: "{{ ansible_os_family == 'Debian' | ternary('www-data', 'apache') }}"
+        mode: '0644'
+      notify:
+        - Restart Apache Debian
+        - Restart Apache RedHat
+
+  handlers:
+    - name: Restart Apache Debian
+      service:
+        name: apache2
+        state: restarted
+      when: ansible_os_family == "Debian"
+      
+    - name: Restart Apache RedHat
+      service:
+        name: httpd
+        state: restarted
+      when: ansible_os_family == "RedHat"
