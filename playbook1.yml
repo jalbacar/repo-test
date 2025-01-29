@@ -65,22 +65,7 @@
         state: started
         enabled: yes
       when: ansible_os_family == "RedHat"
-      
-    - name: Configurar firewall UFW (Debian/Ubuntu)
-      ufw:
-        rule: allow
-        port: "{{ apache_port }}"
-        proto: tcp
-      when: ansible_os_family == "Debian"
-      
-    - name: Configurar firewall firewalld (RedHat/CentOS)
-      firewalld:
-        port: "{{ apache_port }}/tcp"
-        permanent: yes
-        state: enabled
-        immediate: yes
-      when: ansible_os_family == "RedHat"
-      
+    
     - name: Crear página HTML de prueba
       template:
         src: index.html.j2
@@ -98,9 +83,3 @@
         name: apache2
         state: restarted
       when: ansible_os_family == "Debian"
-      
-    - name: Restart Apache RedHat
-      service:
-        name: httpd
-        state: restarted
-      when: ansible_os_family == "RedHat"
