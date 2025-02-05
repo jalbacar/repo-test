@@ -1,23 +1,31 @@
 ---
-- hosts: ansiblevm1
-  become: true
+- name: Instalar aplicaciones básicas
+  hosts: ubuntu1,ubuntu2
+  become: yes
+  
   tasks:
-    - name: Instalar Nginx
+    - name: Actualizar apt cache
       apt:
-        name: nginx
-        state: present
         update_cache: yes
+      
+    - name: Instalar paquetes básicos
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - nginx
+        - python3
+        - python3-pip
+        - git
+        
+    - name: Verificar instalaciones
+      command: "{{ item }} --version"
+      register: versiones
+      loop:
+        - nginx
+        - python3
+      changed_when: false
 
-    - name: Crear página web personalizada
-      template:
-        src: templates/index.html.j2
-        dest: /var/www/html/index.html
-        owner: www-data
-        group: www-data
-        mode: '0644'
-
-    - name: Asegurar que Nginx está corriendo
-      service:
-        name: nginx
-        state: started
-        enabled: yes
+    - name: Mostrar versiones
+      debug:
+        var: versiones.results
