@@ -1,6 +1,10 @@
 ---
-- hosts: ansiblevm1
+- hosts: all
   gather_facts: no
   tasks:
-    - name: Test connection
+    - name: Echo connection info
+      debug:
+        msg: "Connecting to {{ inventory_hostname }} as {{ ansible_user }}"
+    
+    - name: Ping host
       ping:
