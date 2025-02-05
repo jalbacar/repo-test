@@ -1,10 +1,38 @@
 ---
-- hosts: all
-  gather_facts: no
+- name: Configurar servicios
+  hosts: ubuntu1,ubuntu2
+  become: yes
+  
+  vars:
+    servicio: nginx
+    puerto: 80
+  
   tasks:
-    - name: Echo connection info
-      debug:
-        msg: "Connecting to {{ inventory_hostname }} as {{ ansible_user }}"
+    - name: Asegurar que el servicio está instalado
+      apt:
+        name: "{{ servicio }}"
+        state: present
     
-    - name: Ping host
-      ping:
+    - name: Configurar nginx
+      template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/sites-available/default
+      when: servicio == "nginx"
+      notify: restart nginx
+    
+    - name: Habilitar el servicio
+      service:
+        name: "{{ servicio }}"
+        state: started
+        enabled: yes
+    
+    - name: Verificar que el puerto está escuchando
+      wait_for:
+        port: "{{ puerto }}"
+        timeout: 30
+    
+  handlers:
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted
