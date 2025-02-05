@@ -1,23 +1,6 @@
 ---
-- hosts: ubuntu1
-  become: true
+- hosts: ansiblevm1
+  gather_facts: no
   tasks:
-    - name: Instalar Nginx
-      apt:
-        name: nginx
-        state: present
-        update_cache: yes
-
-    - name: Crear página web personalizada
-      template:
-        src: templates/index.html.j2
-        dest: /var/www/html/index.html
-        owner: www-data
-        group: www-data
-        mode: '0644'
-
-    - name: Asegurar que Nginx está corriendo
-      service:
-        name: nginx
-        state: started
-        enabled: yes
+    - name: Test connection
+      ping:
