@@ -1,0 +1,48 @@
+---
+- hosts: servidores_tomcat
+  become: true
+  vars:
+    tomcat_version: "8"  # Versión de Tomcat a instalar (8, 9, etc.)
+    tomcat_user: tomcat  # Usuario de Tomcat
+    tomcat_group: tomcat  # Grupo de Tomcat
+    war_file: ./webapp.war  # Ruta al archivo WAR
+    tomcat_webapps_dir: /var/lib/tomcat8/webapps/  # Ruta al directorio webapps
+    app_name: webapp_app  # Nombre de la aplicación (sin.war)
+
+  tasks:
+    - name: Instalar Java (si no está instalado)
+      apt:
+        name: default-jdk
+        state: present
+
+    - name: Instalar Tomcat
+      apt:
+        name: tomcat{{ tomcat_version }}
+        state: present
+
+    - name: Detener Tomcat
+      service:
+        name: tomcat{{ tomcat_version }}
+        state: stopped
+
+    - name: Copiar el archivo WAR
+      copy:
+        src: "{{ war_file }}"
+        dest: "{{ tomcat_webapps_dir }}"
+        remote_src: yes  # Asegúrate de que el archivo WAR esté en el servidor
+
+    - name: Eliminar el directorio de la aplicación anterior (si existe)
+      file:
+        path: "{{ tomcat_webapps_dir }}/{{ app_name }}"
+        state: absent
+
+    - name: Cambiar el propietario del archivo WAR
+      file:
+        path: "{{ tomcat_webapps_dir }}/{{ war_file | basename }}"
+        owner: "{{ tomcat_user }}"
+        group: "{{ tomcat_group }}"
+
+    - name: Iniciar Tomcat
+      service:
+        name: tomcat{{ tomcat_version }}
+        state: started
