@@ -2,7 +2,7 @@
 - hosts: servidores_linux
   become: true
   vars:
-    tomcat_version: "8"  # Versión de Tomcat a instalar (8, 9, etc.)
+    tomcat_version: "10"  # Versión de Tomcat a instalar (8, 9, etc.)
     tomcat_user: tomcat  # Usuario de Tomcat
     tomcat_group: tomcat  # Grupo de Tomcat
     war_file: ./webapp.war  # Ruta al archivo WAR
