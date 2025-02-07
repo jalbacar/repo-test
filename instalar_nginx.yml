@@ -1,0 +1,13 @@
+---
+- hosts: servidores_linux
+  become: true
+  tasks:
+    - name: Instalar Nginx
+      apt:
+        name: nginx
+        state: present
+    - name: Iniciar Nginx
+      service:
+        name: nginx
+        state: started
+        enabled: yes
