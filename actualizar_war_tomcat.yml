@@ -1,5 +1,5 @@
 ---
-- hosts: servidores_tomcat
+- hosts: servidores_linux
   become: true
   vars:
     war_file: ./webapp.war  # Ruta al archivo WAR en el servidor
