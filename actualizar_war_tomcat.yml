@@ -1,0 +1,23 @@
+---
+- hosts: servidores_tomcat
+  become: true
+  vars:
+    war_file: ./webapp.war  # Ruta al archivo WAR en el servidor
+    tomcat_webapps_dir: /var/lib/tomcat8/webapps/  # Ruta al directorio webapps de Tomcat
+  tasks:
+    - name: Detener Tomcat
+      service:
+        name: tomcat8
+        state: stopped
+    - name: Copiar el nuevo archivo WAR
+      copy:
+        src: "{{ war_file }}"
+        dest: "{{ tomcat_webapps_dir }}"
+    - name: Eliminar el directorio de la aplicación anterior
+      file:
+        path: "{{ tomcat_webapps_dir }}/webapp_app"  # Reemplaza con el nombre de tu aplicación
+        state: absent
+    - name: Iniciar Tomcat
+      service:
+        name: tomcat8
+        state: started
