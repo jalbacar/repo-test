@@ -19,7 +19,7 @@
         - git
         
     - name: Verificar instalaciones
-      command: "{{ item }} --version"
+      command: "{{ item }} -V"
       register: versiones
       loop:
         - nginx
