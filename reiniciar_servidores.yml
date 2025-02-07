@@ -1,0 +1,8 @@
+---
+- hosts: servidores_linux  # Grupo de hosts en el inventario de AWX
+  become: true
+  tasks:
+  - name: Reiniciar el servidor
+    reboot:
+      connect_timeout: 5
+      reboot_timeout: 300
