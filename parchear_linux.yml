@@ -1,0 +1,11 @@
+---
+- hosts: servidores_linux
+  become: true
+  tasks:
+    - name: Actualizar caché de paquetes
+      apt:
+        update_cache: yes
+    - name: Instalar actualizaciones de seguridad
+      apt:
+        upgrade: dist
+        security: yes
