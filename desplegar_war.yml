@@ -1,5 +1,5 @@
 ---
-- hosts: servidores_tomcat
+- hosts: servidores_linux
   become: true
   vars:
     tomcat_version: "8"  # Versión de Tomcat a instalar (8, 9, etc.)
