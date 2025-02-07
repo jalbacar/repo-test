@@ -1,0 +1,11 @@
+---
+- hosts: servidores_linux
+  become: true
+  tasks:
+    - name: Crear nuevo usuario
+      user:
+        name: "{{ nuevo_usuario }}"
+        state: present
+        groups: sudo
+        shell: /bin/bash
+        password: "{{ nueva_contrasena | password_hash('sha512') }}"
